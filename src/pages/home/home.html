@@ -1,14 +1,15 @@
 <ion-header>
   <ion-navbar>
     <ion-title>
-      Ionic Blank
+      My IOT Home
     </ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+  <ion-item>
+    <ion-label>Connection Status</ion-label>
+    <ion-icon item-end [name]="connection_icon" *ngIf="!connection_loading"></ion-icon>
+    <ion-spinner item-end name="dots" *ngIf="connection_loading"></ion-spinner>
+  </ion-item>
 </ion-content>
