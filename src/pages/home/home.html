@@ -8,8 +8,24 @@
 
 <ion-content padding>
   <ion-item>
-    <ion-label>Connection Status</ion-label>
+    <ion-label class="connected-status">Connection Status</ion-label>
     <ion-icon item-end [name]="connection_icon" *ngIf="!connection_loading"></ion-icon>
     <ion-spinner item-end name="dots" *ngIf="connection_loading"></ion-spinner>
   </ion-item>
+
+  <ion-label class="activity-heading">Latest Activity</ion-label>
+  <ion-card *ngIf="!connection_loading">
+    <img *ngIf="activity.isActivity" [src]="activity.image" class="image"/>
+    <ion-card-content>
+      <ion-card-title class="room-status">
+        {{activity.last_room}}
+      </ion-card-title>
+      <p class="connected-status">
+        {{activity.timestamp}}
+        {{activity.battery}}
+      </p>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-label padding-top="20px" class="activity-heading">Rooms</ion-label>
 </ion-content>

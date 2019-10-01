@@ -7,6 +7,8 @@ import { IonicMqttModule, MQTTService } from 'ionic-mqtt';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { HistoryProvider } from '../providers/history/history';
+import { IonicStorageModule } from '@ionic/storage';
 
 @NgModule({
   declarations: [
@@ -16,7 +18,8 @@ import { HomePage } from '../pages/home/home';
   imports: [
     BrowserModule,
     IonicModule.forRoot(MyApp),
-    IonicMqttModule
+    IonicMqttModule,
+    IonicStorageModule.forRoot()
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -27,7 +30,8 @@ import { HomePage } from '../pages/home/home';
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    MQTTService
+    MQTTService,
+    HistoryProvider
   ]
 })
 export class AppModule {}
