@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-// import { ToastController } from 'ionic-angular';
+import { ToastController } from 'ionic-angular';
 
 // Broker Imports & Cred
 import { MQTTService } from 'ionic-mqtt'
 import { MQTT_CONFIG } from './broker'
 import { Rooms } from './rooms';
 import {HistoryProvider} from '../../providers/history/history';
+import {copy} from "@ionic/app-scripts";
 
 @Component({
   selector: 'page-home',
@@ -30,19 +31,45 @@ export class HomePage {
     image: ''
   };
 
+  // Devices-Rooms
+  rooms = [];
 
-  constructor(public navCtrl: NavController, private mqttService: MQTTService, private history: HistoryProvider) {
+  // Notification Delay
+  lastInteraction = 0;
+
+  constructor(public navCtrl: NavController, private mqttService: MQTTService, private history: HistoryProvider, private toast: ToastController) {
     this._client = this.mqttService.client;
   }
 
   ngOnInit() {
     this._client = this.mqttService.loadingMqtt(this.connectionLost, this.messageArrived, this.TOPIC, MQTT_CONFIG);
+    this.history.addDevices().then(
+      () => {
+        let temp_rooms = this.history.getDevices();
+        console.log(temp_rooms);
+        // Format room objects
+        for(let room of temp_rooms) {
+          room = room[0];
+          let room_obj = {
+            room : room[1].charAt(0).toUpperCase() + room[1].slice(1),
+            battery: room[3],
+            timestamp: room[0],
+            image : Rooms[room[1]],
+            activity : room[2]
+          };
+          this.rooms.push(room_obj)
+        }
+
+      }
+    )
+
   }
 
   connectionLost = (response) => {
     console.log('lost connection');
     console.log(response.toString());
     this.connection_icon = 'close-circle';
+    this.showToast("Lost Connection with Broker", 4000);
   };
 
   messageArrived = (message) => {
@@ -64,18 +91,59 @@ export class HomePage {
 
       // Timestamp
       let date = new Date(payload[0]);
-      this.activity.timestamp = date.toLocaleDateString();
+      this.activity.timestamp = date.toLocaleTimeString();
 
       // Image
       this.activity.image = Rooms[payload[1]];
       this.activity.isActivity = true;
     }
 
+    // Check activity difference
+    this.history.checkInactivity(payload[0]).then(
+      res => {
+        if (res) {
+          // Inactive push notification
+          this.inactiveNotification();
+        }
+      }
+    )
   };
 
+  inactiveNotification = () => {
+    let delay = 10000;
+    if (this.lastInteraction >= (Date.now() - delay))
+      return;
+    this.lastInteraction = Date.now();
+    console.log("Inactivity Detected");
+    this.showToast("Inactivity Detected", 3000);
+  };
+
+  /**
+   * Called upon a successful connection
+   */
   connectSuccess = () => {
     console.log("success");
+    this.inactiveNotification();
     this.connection_loading = false;
+  };
 
-  }
+  /**
+   * Shows a notification toast on bottom of screen
+   *
+   * @param message to notify user
+   * @param duration in milliseconds
+   */
+  showToast = (message, duration) => {
+    let toast_notification = this.toast.create({
+      message: message,
+      duration: duration,
+      position: 'bottom'
+    });
+
+    toast_notification.onDidDismiss(() => {
+      console.log('Dismissed toast');
+    });
+
+    toast_notification.present();
+  };
 }

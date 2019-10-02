@@ -14,6 +14,9 @@ export class HistoryProvider {
     console.log('Hello HistoryProvider Provider');
   }
 
+  // Temp Storage Variables
+  private rooms : any;
+
   /**
    * Sets the most recent activity key and stores the movement information in the localstorage module
    * @param data array data payload containing sensor information. format: [timestamp, room, status, battery]
@@ -21,10 +24,8 @@ export class HistoryProvider {
   setRoomMotion = (data : Array<any>) => {
     this.storage.set('latest', data).then(
       () => {
-        this.storage.get(data[1]).then(
-          (ret) => {
-            ret[data[0]] = data;
-          }
+        this.storage.set(data[1], data).then(
+          () => {}
         );
       }
     );
@@ -41,9 +42,27 @@ export class HistoryProvider {
         let latest_date = new Date(ret[0]).getTime();
         timestamp = new Date(timestamp).getTime();
         let timestamp_difference = timestamp - latest_date;
-        let difference = Math.floor( timestamp_difference / (1000*60));
+        console.log(timestamp_difference);
+        let difference = Math.floor( timestamp_difference / 1000 / 60);
+        console.log("difference", difference);
         return difference >= 5;
       }
     )
+  };
+
+  addDevices = () => {
+    this.rooms = [];
+
+    return this.storage.forEach(
+      (key, value) => {
+        if (value != "latest" && value != 'location') {
+          this.rooms.push([key, value])
+        }
+      }
+    )
+  };
+
+  getDevices = () => {
+    return this.rooms;
   }
 }
