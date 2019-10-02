@@ -20,34 +20,27 @@
       <ion-card-title class="room-status">
         {{activity.last_room}}
       </ion-card-title>
-      <p class="connected-status">
-        {{activity.timestamp}}
+      <p class="connected-status" *ngIf="!connection_loading">
+        {{activity.time_since_active}} minute(s) ago at {{activity.timestamp}}
       </p>
     </ion-card-content>
   </ion-card>
 
   <ion-label padding-top="20px" class="activity-heading">Rooms</ion-label>
 
+
   <ion-grid>
     <ion-row>
-      <ion-col size="12"
-               size-xs="12"
-               size-sm="6"
-               size-md="4"
-               size-lg="3"
-               *ngFor="let room of rooms">
+      <ion-col col-6 *ngFor="let room of rooms">
         <ion-card>
           <img [src]="room.image" class="image"/>
           <ion-card-content>
             <ion-card-title class="room-status">
               {{room.room}}
             </ion-card-title>
-            <p class="connected-status">
-              {{room.battery}}
-            </p>
             <ion-range [(ngModel)]="room.battery" min="0" max="100" color="primary" pin="true" disabled>
-<!--              <ion-label range-left>0</ion-label>-->
-<!--              <ion-label range-right>100</ion-label>-->
+              <ion-icon range-left name="md-battery-charging"></ion-icon>
+              <ion-label range-right class="battery-status">{{room.battery}}%</ion-label>
             </ion-range>
           </ion-card-content>
         </ion-card>

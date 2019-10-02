@@ -7,7 +7,6 @@ import { MQTTService } from 'ionic-mqtt'
 import { MQTT_CONFIG } from './broker'
 import { Rooms } from './rooms';
 import {HistoryProvider} from '../../providers/history/history';
-import {copy} from "@ionic/app-scripts";
 
 @Component({
   selector: 'page-home',
@@ -24,11 +23,12 @@ export class HomePage {
 
   // activity
   activity = {
-    last_room : 'No Recent Activity',
+    last_room : 'Last Activity Location Un',
     battery : null,
     timestamp : '',
     isActivity: false,
-    image: ''
+    image: '',
+    time_since_active : 0
   };
 
   // Devices-Rooms
@@ -43,6 +43,13 @@ export class HomePage {
 
   ngOnInit() {
     this._client = this.mqttService.loadingMqtt(this.connectionLost, this.messageArrived, this.TOPIC, MQTT_CONFIG);
+    this.history.getLatest().then(
+      ret => {
+        this.activity.timestamp = new Date(ret[0]).toLocaleTimeString();
+        this.activity.last_room = ret[1].charAt(0).toUpperCase() + ret[1].slice(1);
+        this.activity.image = Rooms[ret[1]]
+      }
+    );
     this.history.addDevices().then(
       () => {
         let temp_rooms = this.history.getDevices();
@@ -59,7 +66,6 @@ export class HomePage {
           };
           this.rooms.push(room_obj)
         }
-
       }
     )
 
@@ -77,10 +83,19 @@ export class HomePage {
     console.log("Message Arrived");
     console.log(message.payloadString);
     let payload = message.payloadString.split(",");
-    /**
-     * Payload
-     * [timestamp, room, status, battery]
-     */
+
+    // Check activity difference
+    this.history.checkInactivity(payload[0]).then(
+      res => {
+        // @ts-ignore
+        this.activity.time_since_active = res[0];
+        if (res[1]) {
+          // Inactive push notification
+          this.inactiveNotification();
+        }
+      }
+    );
+
     // If room is changed, post as latest activity
     if (payload[2] == 1) {
       // Send to History Provider
@@ -97,16 +112,6 @@ export class HomePage {
       this.activity.image = Rooms[payload[1]];
       this.activity.isActivity = true;
     }
-
-    // Check activity difference
-    this.history.checkInactivity(payload[0]).then(
-      res => {
-        if (res) {
-          // Inactive push notification
-          this.inactiveNotification();
-        }
-      }
-    )
   };
 
   inactiveNotification = () => {
@@ -123,7 +128,6 @@ export class HomePage {
    */
   connectSuccess = () => {
     console.log("success");
-    this.inactiveNotification();
     this.connection_loading = false;
   };
 
@@ -141,7 +145,7 @@ export class HomePage {
     });
 
     toast_notification.onDidDismiss(() => {
-      console.log('Dismissed toast');
+      // this.navCtrl.push("home");
     });
 
     toast_notification.present();

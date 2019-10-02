@@ -39,13 +39,17 @@ export class HistoryProvider {
   checkInactivity = (timestamp) => {
     return this.storage.get('latest').then(
       ret => {
+        if (ret == null) {
+          return
+        }
+        console.log(ret);
         let latest_date = new Date(ret[0]).getTime();
         timestamp = new Date(timestamp).getTime();
         let timestamp_difference = timestamp - latest_date;
         console.log(timestamp_difference);
         let difference = Math.floor( timestamp_difference / 1000 / 60);
         console.log("difference", difference);
-        return difference >= 5;
+        return [difference, difference >= 5];
       }
     )
   };
@@ -64,5 +68,13 @@ export class HistoryProvider {
 
   getDevices = () => {
     return this.rooms;
+  };
+
+  getLatest = () => {
+    return this.storage.get('latest').then(
+      (ret) => {
+        return ret;
+      }
+    )
   }
 }
