@@ -6,7 +6,7 @@ import { ToastController } from 'ionic-angular';
 import { MQTTService } from 'ionic-mqtt'
 import { MQTT_CONFIG } from './broker'
 import { Rooms } from './rooms';
-import {HistoryProvider} from '../../providers/history/history';
+import { HistoryProvider } from '../../providers/history/history';
 
 @Component({
   selector: 'page-home',
@@ -36,12 +36,17 @@ export class HomePage {
 
   // Notification Delay
   lastInteraction = 0;
+  inactivityShown = false;
+
+  // Room Motion Histogram
+  histogram : object;
 
   constructor(public navCtrl: NavController, private mqttService: MQTTService, private history: HistoryProvider, private toast: ToastController) {
     this._client = this.mqttService.client;
   }
 
   ngOnInit() {
+    this.histogram = {};
     this._client = this.mqttService.loadingMqtt(this.connectionLost, this.messageArrived, this.TOPIC, MQTT_CONFIG);
     this.history.getLatest().then(
       ret => {
@@ -50,26 +55,32 @@ export class HomePage {
         this.activity.image = Rooms[ret[1]]
       }
     );
+    this.updateRoomData();
+  }
+
+  updateRoomData = () => {
+    this.rooms = [];
     this.history.addDevices().then(
       () => {
         let temp_rooms = this.history.getDevices();
-        console.log(temp_rooms);
+        console.log('temp_rooms',temp_rooms);
         // Format room objects
-        for(let room of temp_rooms) {
+        for (let room of temp_rooms) {
+          this.histogram[room[1]] = 0;
           room = room[0];
           let room_obj = {
-            room : room[1].charAt(0).toUpperCase() + room[1].slice(1),
+            room: room[1].charAt(0).toUpperCase() + room[1].slice(1),
             battery: room[3],
             timestamp: room[0],
-            image : Rooms[room[1]],
-            activity : room[2]
+            image: Rooms[room[1]],
+            activity: room[2],
+            prior_activity: this.histogram[room[1]]
           };
-          this.rooms.push(room_obj)
+          this.rooms.push(room_obj);
         }
       }
-    )
-
-  }
+    );
+  };
 
   connectionLost = (response) => {
     console.log('lost connection');
@@ -85,8 +96,10 @@ export class HomePage {
     let payload = message.payloadString.split(",");
 
     // Check activity difference
+    console.log('payload',payload[0]);
     this.history.checkInactivity(payload[0]).then(
       res => {
+        console.log("result", res);
         // @ts-ignore
         this.activity.time_since_active = res[0];
         if (res[1]) {
@@ -101,6 +114,12 @@ export class HomePage {
       // Send to History Provider
       this.history.setRoomMotion(payload);
 
+      // Set histogram motion
+      this.histogram[payload[1]]++;
+      console.log("histogram\n",this.histogram);
+      // Reset Push Notification
+      this.inactivityShown = false;
+
       this.activity.last_room = payload[1].charAt(0).toUpperCase() + payload[1].slice(1);
       this.activity.battery = payload[3];
 
@@ -112,15 +131,19 @@ export class HomePage {
       this.activity.image = Rooms[payload[1]];
       this.activity.isActivity = true;
     }
+
+    // Update Rooms
+    this.updateRoomData();
+
   };
 
   inactiveNotification = () => {
     let delay = 10000;
-    if (this.lastInteraction >= (Date.now() - delay))
+    if (this.lastInteraction >= (Date.now() - delay) || this.inactivityShown)
       return;
     this.lastInteraction = Date.now();
-    console.log("Inactivity Detected");
-    this.showToast("Inactivity Detected", 3000);
+    this.inactivityShown = true;
+    this.showToast("Inactivity Detected", 5000);
   };
 
   /**

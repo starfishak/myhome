@@ -1,12 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 
-/*
-  Generated class for the HistoryProvider provider.
-
-  See https://angular.io/guide/dependency-injection for more info on providers
-  and Angular DI.
-*/
 @Injectable()
 export class HistoryProvider {
 
@@ -16,7 +10,6 @@ export class HistoryProvider {
 
   // Temp Storage Variables
   private rooms : any;
-
   /**
    * Sets the most recent activity key and stores the movement information in the localstorage module
    * @param data array data payload containing sensor information. format: [timestamp, room, status, battery]
@@ -32,11 +25,13 @@ export class HistoryProvider {
   };
 
   /**
+   * Compares the provided timestamp to the latest timestamp
    *
    * @param timestamp to compare the latest timestamp to
    * @return promise time difference
    */
   checkInactivity = (timestamp) => {
+    console.log('checkinactivity called');
     return this.storage.get('latest').then(
       ret => {
         if (ret == null) {
