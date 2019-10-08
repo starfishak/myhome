@@ -14,7 +14,7 @@ import { HistoryProvider } from '../../providers/history/history';
 })
 export class HomePage {
   // Client Def
-  private _client = null;
+  private _client: any;
   private TOPIC: string[] = ['swen325/a3'];
 
   // View Components
@@ -23,7 +23,7 @@ export class HomePage {
 
   // activity
   activity = {
-    last_room : 'Last Activity Location Un',
+    last_room : 'Last Activity Location Unknown',
     battery : null,
     timestamp : '',
     isActivity: false,
@@ -50,31 +50,37 @@ export class HomePage {
     this._client = this.mqttService.loadingMqtt(this.connectionLost, this.messageArrived, this.TOPIC, MQTT_CONFIG);
     this.history.getLatest().then(
       ret => {
-        this.activity.timestamp = new Date(ret[0]).toLocaleTimeString();
-        this.activity.last_room = ret[1].charAt(0).toUpperCase() + ret[1].slice(1);
-        this.activity.image = Rooms[ret[1]]
+        if (!ret == null) {
+          this.activity.timestamp = new Date(ret[0]).toLocaleTimeString();
+          this.activity.last_room = ret[1].charAt(0).toUpperCase() + ret[1].slice(1);
+          this.activity.image = Rooms[ret[1]]
+        }
       }
     );
     this.updateRoomData();
   }
 
   updateRoomData = () => {
-    this.rooms = [];
     this.history.addDevices().then(
-      () => {
-        let temp_rooms = this.history.getDevices();
-        console.log('temp_rooms',temp_rooms);
-        // Format room objects
+      (temp_rooms) => {
+        this.rooms = [];
         for (let room of temp_rooms) {
-          this.histogram[room[1]] = 0;
-          room = room[0];
+          let room_name = room[0];
+          room = room[1];
+          let prior_activity = 0;
+
+          console.log(this.histogram);
+          if (this.histogram.hasOwnProperty(room_name)) {
+            prior_activity = this.histogram[room_name];
+          }
+
           let room_obj = {
             room: room[1].charAt(0).toUpperCase() + room[1].slice(1),
             battery: room[3],
             timestamp: room[0],
             image: Rooms[room[1]],
             activity: room[2],
-            prior_activity: this.histogram[room[1]]
+            prior_activity: prior_activity
           };
           this.rooms.push(room_obj);
         }
@@ -96,10 +102,8 @@ export class HomePage {
     let payload = message.payloadString.split(",");
 
     // Check activity difference
-    console.log('payload',payload[0]);
     this.history.checkInactivity(payload[0]).then(
       res => {
-        console.log("result", res);
         // @ts-ignore
         this.activity.time_since_active = res[0];
         if (res[1]) {
@@ -111,15 +115,27 @@ export class HomePage {
 
     // If room is changed, post as latest activity
     if (payload[2] == 1) {
+
       // Send to History Provider
       this.history.setRoomMotion(payload);
 
       // Set histogram motion
-      this.histogram[payload[1]]++;
-      console.log("histogram\n",this.histogram);
+      if (this.histogram.hasOwnProperty(payload[1])) {
+        if (payload[2] == 1) {
+          this.histogram[payload[1]] += 1;
+        }
+      }
+      else {
+        this.histogram[payload[1]] = 0;
+        if (payload[2] == 1) {
+          this.histogram[payload[1]] = 1;
+        }
+
+      }
+
+
       // Reset Push Notification
       this.inactivityShown = false;
-
       this.activity.last_room = payload[1].charAt(0).toUpperCase() + payload[1].slice(1);
       this.activity.battery = payload[3];
 
@@ -131,10 +147,8 @@ export class HomePage {
       this.activity.image = Rooms[payload[1]];
       this.activity.isActivity = true;
     }
-
     // Update Rooms
     this.updateRoomData();
-
   };
 
   inactiveNotification = () => {

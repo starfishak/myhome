@@ -38,7 +38,7 @@
             <ion-card-title class="room-status">
               {{room.room}}
             </ion-card-title>
-            <ion-range [(ngModel)]="room.prior_activity" min="0" max="100" color="primary" pin="true" disabled>
+            <ion-range [(ngModel)]="room.prior_activity" min="0" max="50" color="primary" pin="true" disabled>
               <ion-icon range-left name="md-walk"></ion-icon>
               <ion-label range-right class="battery-status">{{room.prior_activity}}</ion-label>
             </ion-range>
