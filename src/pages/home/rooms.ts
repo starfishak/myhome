@@ -1,4 +1,3 @@
-// ../../assets/imgs/living.jpg
 export const Rooms = {
   living : '../../assets/imgs/living.jpg',
   toilet : '../../assets/imgs/bathroom.jpg',

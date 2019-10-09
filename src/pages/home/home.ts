@@ -19,6 +19,7 @@ export class HomePage {
 
   // View Components
   connection_loading = true;
+  show_latest = false;
   connection_icon = 'checkmark-circle';
 
   // activity
@@ -40,6 +41,7 @@ export class HomePage {
 
   // Room Motion Histogram
   histogram : object;
+  max_activity : number;
 
   constructor(public navCtrl: NavController, private mqttService: MQTTService, private history: HistoryProvider, private toast: ToastController) {
     this._client = this.mqttService.client;
@@ -47,6 +49,7 @@ export class HomePage {
 
   ngOnInit() {
     this.histogram = {};
+    this.max_activity = 2;
     this._client = this.mqttService.loadingMqtt(this.connectionLost, this.messageArrived, this.TOPIC, MQTT_CONFIG);
     this.history.getLatest().then(
       ret => {
@@ -68,8 +71,6 @@ export class HomePage {
           let room_name = room[0];
           room = room[1];
           let prior_activity = 0;
-
-          console.log(this.histogram);
           if (this.histogram.hasOwnProperty(room_name)) {
             prior_activity = this.histogram[room_name];
           }
@@ -115,6 +116,8 @@ export class HomePage {
 
     // If room is changed, post as latest activity
     if (payload[2] == 1) {
+      // Show the latest content
+      this.show_latest = true;
 
       // Send to History Provider
       this.history.setRoomMotion(payload);
@@ -130,9 +133,15 @@ export class HomePage {
         if (payload[2] == 1) {
           this.histogram[payload[1]] = 1;
         }
-
       }
 
+      // Get max histogram value
+      for (let el in this.histogram) {
+        console.log('el', this.histogram[el]);
+        if (this.histogram[el] > this.max_activity) {
+          this.max_activity = this.histogram[el]
+        }
+      }
 
       // Reset Push Notification
       this.inactivityShown = false;
@@ -157,7 +166,7 @@ export class HomePage {
       return;
     this.lastInteraction = Date.now();
     this.inactivityShown = true;
-    this.showToast("Inactivity Detected", 5000);
+    this.showToast("Inactivity Detected", 20000);
   };
 
   /**
