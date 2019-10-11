@@ -4,5 +4,15 @@ export const Rooms = {
   bedroom : '../../assets/imgs/bedroom.jpg',
   kitchen : '../../assets/imgs/kitchen.jpg',
   dining : '../../assets/imgs/dining.jpg',
-  add : '../../assets/imgs/add.png'
+  Garden: '../../assets/imgs/garden.jpg',
+  Doorway: '../../assets/imgs/doorway.jpg',
+  Office: '../../assets/imgs/office.jpg',
+  Pool: '../../assets/imgs/pool.jpg',
+  Study: '../../assets/imgs/study.jpg',
+  Recreation: '../../assets/imgs/recreation.jpg',
+  Den: '../../assets/imgs/den.jpg',
+  Closet: '../../assets/imgs/closet.jpg',
+  // garden: '../../assets/imgs/garden.jpg',
+  // garden: '../../assets/imgs/garden.jpg',
+  // garden: '../../assets/imgs/garden.jpg'
 };

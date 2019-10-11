@@ -9,11 +9,13 @@ import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { HistoryProvider } from '../providers/history/history';
 import { IonicStorageModule } from '@ionic/storage';
+import {AddroomPage} from "../pages/addroom/addroom";
 
 @NgModule({
   declarations: [
     MyApp,
-    HomePage
+    HomePage,
+    AddroomPage
   ],
   imports: [
     BrowserModule,
@@ -24,7 +26,8 @@ import { IonicStorageModule } from '@ionic/storage';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    HomePage
+    HomePage,
+    AddroomPage
   ],
   providers: [
     StatusBar,

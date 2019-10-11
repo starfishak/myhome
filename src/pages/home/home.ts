@@ -8,6 +8,9 @@ import { MQTT_CONFIG } from './broker'
 import { Rooms } from './rooms';
 import { HistoryProvider } from '../../providers/history/history';
 
+// Pages
+import {AddroomPage} from "../addroom/addroom";
+
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
@@ -45,6 +48,8 @@ export class HomePage {
 
   constructor(public navCtrl: NavController, private mqttService: MQTTService, private history: HistoryProvider, private toast: ToastController) {
     this._client = this.mqttService.client;
+    // this.history.removeRoom('undefined');
+    // this.history.removeRoom(undefined);
   }
 
   ngOnInit() {
@@ -70,6 +75,7 @@ export class HomePage {
         for (let room of temp_rooms) {
           let room_name = room[0];
           room = room[1];
+          console.log(room);
           let prior_activity = 0;
           if (this.histogram.hasOwnProperty(room_name)) {
             prior_activity = this.histogram[room_name];
@@ -77,6 +83,7 @@ export class HomePage {
 
           let room_obj = {
             room: room[1].charAt(0).toUpperCase() + room[1].slice(1),
+            room_id: room[1],
             battery: room[3],
             timestamp: room[0],
             image: Rooms[room[1]],
@@ -93,7 +100,7 @@ export class HomePage {
     console.log('lost connection');
     console.log(response.toString());
     this.connection_icon = 'close-circle';
-    this.showToast("Lost Connection with Broker", 4000);
+    this.showToast("Reconnecting to Broker...", 4000);
   };
 
   messageArrived = (message) => {
@@ -196,4 +203,31 @@ export class HomePage {
 
     toast_notification.present();
   };
+
+  /**
+   * Opens the room add page
+   */
+  openAddRoom = () => {
+    this.navCtrl.push(AddroomPage);
+  };
+
+  /**
+   * Removes the room from the display
+   */
+  removeRoom = async (room) => {
+    await this.history.removeRoom(room).then(
+      (complete) => {
+        console.log(complete);
+        if (complete == undefined) {
+          this.updateRoomData();
+          this.showToast("Room Removed", 5000)
+        }
+        else {
+          this.showToast("Could Not Remove Room " + complete[1], 5000)
+        }
+      }
+    )
+  }
+
+
 }

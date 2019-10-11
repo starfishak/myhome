@@ -15,7 +15,6 @@ export class HistoryProvider {
   setRoomMotion = (data : Array<any>) => {
     this.storage.set('latest', data).then(
       () => {
-        console.log('data1', data[1]);
         this.storage.set(data[1], data).then(
           () => {}
         );
@@ -40,7 +39,7 @@ export class HistoryProvider {
         console.log(timestamp_difference);
         let difference = Math.floor( timestamp_difference / 1000 / 60);
         console.log("difference", difference);
-        return [difference, difference >= 1];
+        return [difference, difference >= 3];
       }
     )
   };
@@ -66,5 +65,35 @@ export class HistoryProvider {
         return ret;
       }
     )
+  };
+
+  addRoom = async (roomname) => {
+    let generic_data = [new Date(), roomname, 0, -1];
+    await this.storage.set(roomname, generic_data);
+  };
+
+  removeRoom(room: any) {
+    console.log('room', room);
+    return this.storage.get(room).then(
+     res => {
+       console.log('res', res);
+       if (res[3] < 0) {
+         this.storage.remove(room).then(
+           () => {
+             return [true, room]
+           }
+         )
+       }
+       else {
+         return [false, room];
+       }
+     }
+   )
+
+    // return this.storage.remove(room).then(
+    //   () => {
+    //     return true;
+    //   }
+    // );
   }
 }

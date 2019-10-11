@@ -13,7 +13,7 @@
     <ion-spinner item-end name="dots" *ngIf="connection_loading"></ion-spinner>
   </ion-item>
 
-  <ion-label class="activity-heading">Latest Activity</ion-label>
+  <ion-item><ion-label class="activity-heading">Latest Activity</ion-label></ion-item>
   <ion-card *ngIf="!connection_loading">
     <img *ngIf="activity.isActivity" [src]="activity.image" class="image"/>
     <ion-card-content>
@@ -26,7 +26,10 @@
     </ion-card-content>
   </ion-card>
 
-  <ion-label padding-top="20px" class="activity-heading">Rooms</ion-label>
+  <ion-item>
+    <ion-label padding-top="20px" class="activity-heading" ion-start>Rooms</ion-label>
+    <ion-icon item-end name="add" (click)="openAddRoom()" class="add-room-button"></ion-icon>
+  </ion-item>
 
 
   <ion-grid>
@@ -36,7 +39,7 @@
           <img [src]="room.image" class="image"/>
           <ion-card-content>
             <ion-card-title class="room-status">
-              {{room.room}}
+            {{room.room}}
             </ion-card-title>
             <ion-range [(ngModel)]="room.prior_activity" min="0" [max]="max_activity" color="primary" pin="true" disabled>
               <ion-icon range-left name="md-walk"></ion-icon>
@@ -46,6 +49,10 @@
               <ion-icon range-left name="md-battery-charging"></ion-icon>
               <ion-label range-right class="battery-status">{{room.battery}}%</ion-label>
             </ion-range>
+            <ion-item>
+              <ion-label class="remove-label">Remove</ion-label>
+              <ion-icon item-end name="close" (click)="removeRoom(room.room_id)" class="close-button"></ion-icon>
+            </ion-item>
           </ion-card-content>
         </ion-card>
       </ion-col>
