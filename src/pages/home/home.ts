@@ -48,10 +48,11 @@ export class HomePage {
 
   constructor(public navCtrl: NavController, private mqttService: MQTTService, private history: HistoryProvider, private toast: ToastController) {
     this._client = this.mqttService.client;
-    // this.history.removeRoom('undefined');
-    // this.history.removeRoom(undefined);
   }
 
+  /**
+   * Init function for the app
+   */
   ngOnInit() {
     this.histogram = {};
     this.max_activity = 2;
@@ -68,6 +69,9 @@ export class HomePage {
     this.updateRoomData();
   }
 
+  /**
+   * Updates the room grid with new data, including battery info, activity, and room options
+   */
   updateRoomData = () => {
     this.history.addDevices().then(
       (temp_rooms) => {
@@ -96,6 +100,10 @@ export class HomePage {
     );
   };
 
+  /**
+   * Called whenever there is a disconnection
+   * @param response error message
+   */
   connectionLost = (response) => {
     console.log('lost connection');
     console.log(response.toString());
@@ -103,6 +111,10 @@ export class HomePage {
     this.showToast("Reconnecting to Broker...", 4000);
   };
 
+  /**
+   * Runs whenever a new message from the broker arrives; checks for activity; sends it to local storage
+   * @param message payload from the broker
+   */
   messageArrived = (message) => {
     this.connectSuccess();
     console.log("Message Arrived");
@@ -167,6 +179,9 @@ export class HomePage {
     this.updateRoomData();
   };
 
+  /**
+   * Determined whether to alert user of no motion
+   */
   inactiveNotification = () => {
     let delay = 10000;
     if (this.lastInteraction >= (Date.now() - delay) || this.inactivityShown)
@@ -228,6 +243,4 @@ export class HomePage {
       }
     )
   }
-
-
 }

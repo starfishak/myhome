@@ -44,6 +44,10 @@ export class HistoryProvider {
     )
   };
 
+  /**
+   * Adds devices to a list for export to the homepage.
+   * All devices are keys on the localstorage module
+   */
   addDevices = () => {
     let rooms = [];
     return this.storage.forEach(
@@ -59,6 +63,9 @@ export class HistoryProvider {
     )
   };
 
+  /**
+   * Gets the data of the latest activity
+   */
   getLatest = () => {
     return this.storage.get('latest').then(
       (ret) => {
@@ -67,11 +74,20 @@ export class HistoryProvider {
     )
   };
 
+  /**
+   * Adds room to local storage when the user uses "add room" functionality
+   * @param roomname room name user selected from dropdown
+   */
   addRoom = async (roomname) => {
     let generic_data = [new Date(), roomname, 0, -1];
     await this.storage.set(roomname, generic_data);
   };
 
+  /**
+   * Removes a room when the user selects "Remove Room" on the homepage
+   * Only removes if there is no data in stored for the room
+   * @param room
+   */
   removeRoom(room: any) {
     console.log('room', room);
     return this.storage.get(room).then(
@@ -89,11 +105,5 @@ export class HistoryProvider {
        }
      }
    )
-
-    // return this.storage.remove(room).then(
-    //   () => {
-    //     return true;
-    //   }
-    // );
   }
 }
