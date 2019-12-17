@@ -188,7 +188,7 @@ export class HomePage {
       return;
     this.lastInteraction = Date.now();
     this.inactivityShown = true;
-    this.showToast("Inactivity Detected", 20000);
+    this.showToast("Inactivity Detected", 5000);
   };
 
   /**

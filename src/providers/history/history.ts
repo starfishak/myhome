@@ -39,7 +39,7 @@ export class HistoryProvider {
         console.log(timestamp_difference);
         let difference = Math.floor( timestamp_difference / 1000 / 60);
         console.log("difference", difference);
-        return [difference, difference >= 3];
+        return [difference, difference >= 1];
       }
     )
   };

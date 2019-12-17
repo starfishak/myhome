@@ -11,8 +11,5 @@ export const Rooms = {
   Study: '../../assets/imgs/study.jpg',
   Recreation: '../../assets/imgs/recreation.jpg',
   Den: '../../assets/imgs/den.jpg',
-  Closet: '../../assets/imgs/closet.jpg',
-  // garden: '../../assets/imgs/garden.jpg',
-  // garden: '../../assets/imgs/garden.jpg',
-  // garden: '../../assets/imgs/garden.jpg'
+  Closet: '../../assets/imgs/closet.jpg'
 };
