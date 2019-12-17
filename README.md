@@ -9,6 +9,7 @@ There is only one screen on the mobile app. The project specified that user expe
 | Landing Page & Connection Status  | Rooms & Inactivity Notification | Rooms Activity |
 | ------------- | ------------- | ------------- |
 | ![Landing Page](screenshots/a.png)  | ![Rooms & Inactivity Notification](screenshots/b.png)  | ![Rooms Activity](screenshots/c.png) |
+| ------------- | ------------- | ------------- |
 | Landing page of the app. Users can see the connection status and the last activity detected in the smart home. | Users can scroll down to see all the rooms in the smart home with the option to add a new room. The Material-Design snackbar shows the user there has not been activity in the house.  | The rooms page changes based on the sensors data. In this screenshot, the house has had three events of activity in the bedroom and zero events in the living room. This value updates with the state as data is recieved from the data stream. |
 
 ## Clone & Demo ##
